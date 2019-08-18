@@ -1,16 +1,16 @@
-//! JSL schema representations.
+//! JDDF schema representations.
 //!
 //! This module provides both an abstract ([`Schema`](struct.Schema.html)) and a
 //! serializable/deserializable ([`SerdeSchema`](struct.SerdeSchema.html))
-//! representation of JSL schemas.
+//! representation of JDDF schemas.
 
-use crate::errors::JslError;
+use crate::errors::JddfError;
 use failure::{bail, Error};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 
-/// An abstract representation of a JSL schema.
+/// An abstract representation of a JDDF schema.
 ///
 /// This struct is meant for use by validators, code generators, or other
 /// high-level processors of schemas. For serialization and deserialization of
@@ -68,7 +68,7 @@ impl Schema {
 
         if let Some(typ) = serde_schema.typ {
             if form != Form::Empty {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             form = Form::Type(match typ.as_ref() {
@@ -86,26 +86,26 @@ impl Schema {
                 "uint64" => Type::Uint64,
                 "string" => Type::String,
                 "timestamp" => Type::Timestamp,
-                _ => bail!(JslError::InvalidForm),
+                _ => bail!(JddfError::InvalidForm),
             });
         }
 
         if let Some(enm) = serde_schema.enm {
             if form != Form::Empty {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             let mut values = HashSet::new();
             for val in enm {
                 if values.contains(&val) {
-                    bail!(JslError::InvalidForm);
+                    bail!(JddfError::InvalidForm);
                 } else {
                     values.insert(val);
                 }
             }
 
             if values.is_empty() {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             form = Form::Enum(values);
@@ -113,7 +113,7 @@ impl Schema {
 
         if let Some(elements) = serde_schema.elems {
             if form != Form::Empty {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             form = Form::Elements(Self::_from_serde(*elements)?);
@@ -121,7 +121,7 @@ impl Schema {
 
         if serde_schema.props.is_some() || serde_schema.opt_props.is_some() {
             if form != Form::Empty {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             let allow_additional = serde_schema.additional_props == Some(true);
@@ -135,7 +135,7 @@ impl Schema {
             let mut optional = HashMap::new();
             for (name, sub_schema) in serde_schema.opt_props.unwrap_or_default() {
                 if required.contains_key(&name) {
-                    bail!(JslError::AmbiguousProperty { property: name });
+                    bail!(JddfError::AmbiguousProperty { property: name });
                 }
 
                 optional.insert(name, Self::_from_serde(sub_schema)?);
@@ -151,7 +151,7 @@ impl Schema {
 
         if let Some(values) = serde_schema.values {
             if form != Form::Empty {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             form = Form::Values(Self::_from_serde(*values)?);
@@ -159,7 +159,7 @@ impl Schema {
 
         if let Some(discriminator) = serde_schema.discriminator {
             if form != Form::Empty {
-                bail!(JslError::InvalidForm);
+                bail!(JddfError::InvalidForm);
             }
 
             let mut mapping = HashMap::new();
@@ -172,12 +172,12 @@ impl Schema {
                         if required.contains_key(&discriminator.tag)
                             || optional.contains_key(&discriminator.tag)
                         {
-                            bail!(JslError::AmbiguousProperty {
+                            bail!(JddfError::AmbiguousProperty {
                                 property: discriminator.tag,
                             });
                         }
                     }
-                    _ => bail!(JslError::InvalidForm),
+                    _ => bail!(JddfError::InvalidForm),
                 };
 
                 mapping.insert(name, sub_schema);
@@ -197,7 +197,7 @@ impl Schema {
         match schema.form() {
             Form::Ref(ref def) => {
                 if !defs.contains_key(def) {
-                    bail!(JslError::NoSuchDefinition {
+                    bail!(JddfError::NoSuchDefinition {
                         definition: def.clone()
                     })
                 }
@@ -350,7 +350,7 @@ impl Schema {
     /// Get extra data associated with this schema.
     ///
     /// Essentially, this function returns a JSON object of properties that
-    /// aren't JSL keywords, but which were included in the schema's JSON. You
+    /// aren't JDDF keywords, but which were included in the schema's JSON. You
     /// might use these nonstandard fields to implement custom behavior.
     pub fn extra(&self) -> &HashMap<String, Value> {
         &self.extra
@@ -483,7 +483,7 @@ pub enum Type {
     Timestamp,
 }
 
-/// A serialization/deserialization-friendly representation of a JSL schema.
+/// A serialization/deserialization-friendly representation of a JDDF schema.
 ///
 /// This struct is meant for use with the `serde` crate. It is excellent for
 /// parsing from various data formats, but does not enforce all the semantic
@@ -535,7 +535,7 @@ pub struct Serde {
     pub extra: HashMap<String, Value>,
 }
 
-/// A serialization/deserialization-friendly representation of a JSL
+/// A serialization/deserialization-friendly representation of a JDDF
 /// discriminator.
 ///
 /// This struct is useful mostly in the context of

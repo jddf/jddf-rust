@@ -1,4 +1,4 @@
-use crate::errors::JslError;
+use crate::errors::JddfError;
 use crate::schema::{Form, Schema, Type};
 use crate::validator::ValidationError;
 use chrono::DateTime;
@@ -53,7 +53,7 @@ impl<'a> Vm<'a> {
             Form::Empty => {}
             Form::Ref(ref def) => {
                 if self.schema_tokens.len() == self.max_depth {
-                    return Err(EvalError::Actual(err_msg(JslError::MaxDepthExceeded)));
+                    return Err(EvalError::Actual(err_msg(JddfError::MaxDepthExceeded)));
                 }
 
                 let refd_schema = &self.root_schema.definitions().as_ref().unwrap()[def];

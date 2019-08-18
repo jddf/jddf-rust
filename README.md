@@ -1,4 +1,4 @@
-# jsl [![crates.io](https://img.shields.io/crates/v/jddf.svg)](https://crates.io/crates/jddf)
+# jddf [![crates.io](https://img.shields.io/crates/v/jddf.svg)](https://crates.io/crates/jddf)
 
 > Documentation on docs.rs: <https://docs.rs/jddf>
 
