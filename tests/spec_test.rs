@@ -3,30 +3,52 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::fs;
 
-#[derive(Deserialize)]
-struct TestSuite {
-    name: String,
-    schema: SerdeSchema,
-    instances: Vec<TestCase>,
-}
+#[test]
+fn spec_invalid_schemas() -> Result<(), std::io::Error> {
+    #[derive(Deserialize)]
+    struct TestCase {
+        name: String,
+        schema: Value,
+    }
 
-#[derive(Deserialize)]
-struct TestCase {
-    instance: Value,
-    errors: Vec<TestCaseError>,
-}
+    let test_cases: Vec<TestCase> =
+        serde_json::from_slice(&fs::read("spec/tests/invalid-schemas.json")?)
+            .expect("error parsing invalid-schemas.json");
+    for test_case in test_cases {
+        println!("{}", test_case.name);
 
-#[derive(Debug, Deserialize, PartialEq)]
-struct TestCaseError {
-    #[serde(rename = "instancePath")]
-    instance_path: String,
+        if let Ok(serde_schema) = serde_json::from_value::<SerdeSchema>(test_case.schema) {
+            assert!(Schema::from_serde(serde_schema).is_err());
+        }
+    }
 
-    #[serde(rename = "schemaPath")]
-    schema_path: String,
+    Ok(())
 }
 
 #[test]
 fn spec_validation() -> Result<(), std::io::Error> {
+    #[derive(Deserialize)]
+    struct TestSuite {
+        name: String,
+        schema: SerdeSchema,
+        instances: Vec<TestCase>,
+    }
+
+    #[derive(Deserialize)]
+    struct TestCase {
+        instance: Value,
+        errors: Vec<TestCaseError>,
+    }
+
+    #[derive(Debug, Deserialize, PartialEq)]
+    struct TestCaseError {
+        #[serde(rename = "instancePath")]
+        instance_path: String,
+
+        #[serde(rename = "schemaPath")]
+        schema_path: String,
+    }
+
     let mut test_files: Vec<_> = fs::read_dir("spec/tests/validation")?
         .map(|entry| entry.expect("error getting dir entry").path())
         .collect();
