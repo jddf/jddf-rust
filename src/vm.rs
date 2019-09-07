@@ -95,12 +95,6 @@ impl<'a> Vm<'a> {
                 Type::Uint32 => {
                     self.check_int(instance, 0.0, 4294967295.0)?;
                 }
-                Type::Int64 => {
-                    self.check_int(instance, -9223372036854775808.0, 9223372036854775807.0)?;
-                }
-                Type::Uint64 => {
-                    self.check_int(instance, 0.0, 18446744073709551615.0)?;
-                }
                 Type::String => {
                     if !instance.is_string() {
                         self.push_schema_token("type");

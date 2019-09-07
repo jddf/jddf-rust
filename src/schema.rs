@@ -81,8 +81,6 @@ impl Schema {
                 "uint16" => Type::Uint16,
                 "int32" => Type::Int32,
                 "uint32" => Type::Uint32,
-                "int64" => Type::Int64,
-                "uint64" => Type::Uint64,
                 "string" => Type::String,
                 "timestamp" => Type::Timestamp,
                 _ => bail!(JddfError::InvalidForm),
@@ -266,12 +264,6 @@ impl Schema {
             }
             Form::Type(Type::Uint32) => {
                 out.typ = Some("uint32".to_owned());
-            }
-            Form::Type(Type::Int64) => {
-                out.typ = Some("int64".to_owned());
-            }
-            Form::Type(Type::Uint64) => {
-                out.typ = Some("uint64".to_owned());
             }
             Form::Type(Type::String) => {
                 out.typ = Some("string".to_owned());
@@ -459,12 +451,6 @@ pub enum Type {
 
     /// An integer in the range covered by `u32`.
     Uint32,
-
-    /// An integer in the range covered by `i64`.
-    Int64,
-
-    /// An integer in the range covered by `u64`.
-    Uint64,
 
     /// Any JSON string.
     String,
