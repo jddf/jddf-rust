@@ -21,7 +21,7 @@
 //!         {
 //!             "properties": {
 //!                 "name": { "type": "string" },
-//!                 "age": { "type": "number" },
+//!                 "age": { "type": "uint32" },
 //!                 "phones": {
 //!                     "elements": { "type": "string" }
 //!                 }

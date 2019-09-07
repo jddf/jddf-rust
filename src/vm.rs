@@ -70,7 +70,7 @@ impl<'a> Vm<'a> {
                         self.pop_schema_token();
                     }
                 }
-                Type::Number | Type::Float32 | Type::Float64 => {
+                Type::Float32 | Type::Float64 => {
                     if !instance.is_number() {
                         self.push_schema_token("type");
                         self.push_err()?;

@@ -73,7 +73,6 @@ impl Schema {
 
             form = Form::Type(match typ.as_ref() {
                 "boolean" => Type::Boolean,
-                "number" => Type::Number,
                 "float32" => Type::Float32,
                 "float64" => Type::Float64,
                 "int8" => Type::Int8,
@@ -243,9 +242,6 @@ impl Schema {
             }
             Form::Type(Type::Boolean) => {
                 out.typ = Some("boolean".to_owned());
-            }
-            Form::Type(Type::Number) => {
-                out.typ = Some("number".to_owned());
             }
             Form::Type(Type::Float32) => {
                 out.typ = Some("float32".to_owned());
@@ -438,18 +434,12 @@ pub enum Type {
     /// The "true" or "false" JSON values.
     Boolean,
 
-    /// Any JSON number.
-    ///
-    /// Note that JSON only has one kind of number, and JSON numbers may have a
-    /// decimal part.
-    Number,
-
-    /// A floating-point number. This validates just like `Number`, but signals
-    /// the intention that the data is meant to be a single-precision float.
+    /// A floating-point number. Signals the intention that the data is meant to
+    /// be a single-precision float.
     Float32,
 
-    /// A floating-point number. This validates just like `Number`, but signals
-    /// the intention that the data is meant to be a double-precision float.
+    /// A floating-point number. Signals the intention that the data is meant to
+    /// be a double-precision float.
     Float64,
 
     /// An integer in the range covered by `i8`.
@@ -748,14 +738,14 @@ mod tests {
         assert_eq!(
             Schema::from_serde(
                 serde_json::from_value(json!({
-                    "type": "number",
+                    "type": "float64",
                 }))
                 .unwrap()
             )
             .unwrap(),
             Schema {
                 defs: Some(HashMap::new()),
-                form: Box::new(Form::Type(Type::Number)),
+                form: Box::new(Form::Type(Type::Float64)),
                 extra: HashMap::new(),
             },
         );
