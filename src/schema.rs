@@ -39,17 +39,8 @@ impl Schema {
     }
 
     /// Construct a new, root schema from a `Serde`.
-    pub fn from_serde(mut serde_schema: Serde) -> Result<Self, Error> {
-        let mut defs = HashMap::new();
-        let serde_defs = serde_schema.defs;
-        serde_schema.defs = None;
-
-        for (name, sub_schema) in serde_defs.unwrap_or_default() {
-            defs.insert(name, Self::_from_serde(sub_schema)?);
-        }
-
-        let mut schema = Self::_from_serde(serde_schema)?;
-        schema.defs = Some(defs);
+    pub fn from_serde(serde_schema: Serde) -> Result<Self, Error> {
+        let schema = Self::_from_serde(serde_schema, true)?;
 
         Self::check_refs(&schema.defs.as_ref().unwrap(), &schema)?;
         for sub_schema in schema.defs.as_ref().unwrap().values() {
@@ -59,7 +50,21 @@ impl Schema {
         Ok(schema)
     }
 
-    fn _from_serde(serde_schema: Serde) -> Result<Self, Error> {
+    fn _from_serde(serde_schema: Serde, is_root: bool) -> Result<Self, Error> {
+        let defs = if is_root {
+            let mut defs = HashMap::new();
+            for (name, sub_schema) in serde_schema.defs.unwrap_or_default() {
+                defs.insert(name, Self::_from_serde(sub_schema, false)?);
+            }
+            Some(defs)
+        } else {
+            if serde_schema.defs.is_some() {
+                bail!(JddfError::InvalidForm);
+            } else {
+                None
+            }
+        };
+
         let mut form = Form::Empty;
 
         if let Some(rxf) = serde_schema.rxf {
@@ -113,7 +118,7 @@ impl Schema {
                 bail!(JddfError::InvalidForm);
             }
 
-            form = Form::Elements(Self::_from_serde(*elements)?);
+            form = Form::Elements(Self::_from_serde(*elements, false)?);
         }
 
         if serde_schema.props.is_some() || serde_schema.opt_props.is_some() {
@@ -126,7 +131,7 @@ impl Schema {
 
             let mut required = HashMap::new();
             for (name, sub_schema) in serde_schema.props.unwrap_or_default() {
-                required.insert(name, Self::_from_serde(sub_schema)?);
+                required.insert(name, Self::_from_serde(sub_schema, false)?);
             }
 
             let mut optional = HashMap::new();
@@ -135,7 +140,7 @@ impl Schema {
                     bail!(JddfError::AmbiguousProperty { property: name });
                 }
 
-                optional.insert(name, Self::_from_serde(sub_schema)?);
+                optional.insert(name, Self::_from_serde(sub_schema, false)?);
             }
 
             form = Form::Properties {
@@ -151,7 +156,7 @@ impl Schema {
                 bail!(JddfError::InvalidForm);
             }
 
-            form = Form::Values(Self::_from_serde(*values)?);
+            form = Form::Values(Self::_from_serde(*values, false)?);
         }
 
         if let Some(discriminator) = serde_schema.discriminator {
@@ -161,7 +166,7 @@ impl Schema {
 
             let mut mapping = HashMap::new();
             for (name, sub_schema) in discriminator.mapping {
-                let sub_schema = Self::_from_serde(sub_schema)?;
+                let sub_schema = Self::_from_serde(sub_schema, false)?;
                 match sub_schema.form.as_ref() {
                     Form::Properties {
                         required, optional, ..
@@ -184,7 +189,7 @@ impl Schema {
         }
 
         Ok(Self {
-            defs: None,
+            defs,
             form: Box::new(form),
             extra: serde_schema.extra,
         })
