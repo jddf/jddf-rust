@@ -14,6 +14,16 @@ can use it to:
 [crates-url]: https://crates.io/crates/jddf
 [ci-url]: https://github.com/jddf/jddf-rust/actions
 
+## Installation
+
+To use `jddf` as a dependency in your library, add the following to your
+`Cargo.toml`:
+
+```toml
+[dependencies]
+jddf = "0.3"
+```
+
 ## Usage
 
 The [detailed documentation on docs.rs](https://docs.rs/jddf) goes into more
