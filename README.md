@@ -1,4 +1,4 @@
-# jddf [![][crates-badge]][crates-url] [![][ci-badge]][ci-url]
+# jddf-rust [![][crates-badge]][crates-url] [![][ci-badge]][ci-url]
 
 > Documentation on docs.rs: https://docs.rs/jddf
 
