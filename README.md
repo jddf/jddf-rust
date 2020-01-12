@@ -1,6 +1,6 @@
-# jddf [![crates.io](https://img.shields.io/crates/v/jddf.svg)](https://crates.io/crates/jddf)
+# jddf [![][crates-badge]][crates-url] [![][ci-badge]][ci-url]
 
-> Documentation on docs.rs: <https://docs.rs/jddf>
+> Documentation on docs.rs: https://docs.rs/jddf
 
 This crate is a Rust implementation of **JSON Data Definition Format**. You
 can use it to:
@@ -8,6 +8,11 @@ can use it to:
 1. Validate input data is valid against a schema,
 2. Get a list of validation errors with that input data, or
 3. Build your own custom tooling on top of JSON Data Definition Format.
+
+[crates-badge]: https://img.shields.io/crates/v/jddf
+[ci-badge]: https://github.com/jddf/jddf-rust/workflows/Rust%20CI/badge.svg?branch=master
+[crates-url]: https://crates.io/crates/jddf
+[ci-url]: https://github.com/jddf/jddf-rust/actions
 
 ## Usage
 
