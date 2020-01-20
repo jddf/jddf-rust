@@ -238,6 +238,15 @@ impl Schema {
     pub fn into_serde(self) -> Serde {
         let mut out = Serde::default();
 
+        if let Some(defs) = self.defs {
+            let mut out_defs = HashMap::new();
+            for (name, value) in defs {
+                out_defs.insert(name, value.into_serde());
+            }
+
+            out.defs = Some(out_defs);
+        }
+
         match *self.form {
             Form::Empty => {}
             Form::Ref(def) => {
